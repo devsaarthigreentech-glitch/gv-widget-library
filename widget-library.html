@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRemote Widget Library</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --background: #ecf0f1;
+            --text: #2c3e50;
+            --border: #bdc3c7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--background);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .config-section {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: var(--success);
+        }
+
+        button.secondary:hover {
+            background: #229954;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d5f4e6;
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .status.error {
+            background: #fadbd8;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .widget {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--background);
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .widget-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--secondary);
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .widget-unit {
+            font-size: 20px;
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        .widget-timestamp {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text);
+            opacity: 0.6;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--background);
+            stroke-width: 12;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: var(--secondary);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease;
+        }
+
+        .gauge-value {
+            position: absolute;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            margin: 20px 0;
+        }
+
+        .table-widget {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: var(--background);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .refresh-indicator {
+            color: var(--success);
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .refresh-indicator.active {
+            opacity: 1;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+
+        .code-snippet {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎛️ OpenRemote Widget Library</h1>
+
+            <div class="instructions">
+                <h3>📋 Setup Instructions:</h3>
+                <ul>
+                    <li>Enter your OpenRemote instance URL (e.g., https://your-instance.com)</li>
+                    <li>Provide authentication credentials (username + password OR access token)</li>
+                    <li>Click "Connect to OpenRemote" to authenticate</li>
+                    <li>Configure asset IDs and attribute names for each widget</li>
+                    <li>Widgets will automatically refresh every 5 seconds</li>
+                </ul>
+            </div>
+
+            <div class="config-section">
+                <div class="input-group">
+                    <label for="instanceUrl">OpenRemote Instance URL</label>
+                    <input type="text" id="instanceUrl" placeholder="https://your-instance.openremote.io" value="">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label for="username">Username (Optional)</label>
+                        <input type="text" id="username" placeholder="admin">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password (Optional)</label>
+                        <input type="password" id="password" placeholder="password">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="accessToken">OR Access Token</label>
+                    <input type="password" id="accessToken" placeholder="Bearer token (if you have one)">
+                </div>
+
+                <button onclick="connectToOpenRemote()">🔌 Connect to OpenRemote</button>
+
+                <div id="connectionStatus" class="status"></div>
+            </div>
+        </div>
+
+        <div class="widgets-grid" id="widgetsContainer">
+            <!-- Gauge Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">Temperature Gauge</span>
+                    <span class="refresh-indicator" id="refresh-gauge">↻</span>
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Asset ID</label>
+                    <input type="text" id="gauge-asset-id" placeholder="asset-123">
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Attribute Name</label>
+                    <input type="text" id="gauge-attribute" placeholder="temperature">
+                </div>
+                <button class="secondary" onclick="startGaugeWidget()">Start Gauge Widget</button>
+                <div class="gauge-container" id="gaugeContainer">
+                    <svg class="gauge-svg" width="200" height="200" viewBox="0 0 200 200">
+                        <circle class="gauge-bg" cx="100" cy="100" r="80"></circle>
+                        <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="80" stroke-dasharray="0 502">
+                        </circle>
+                    </svg>
+                    <div class="gauge-value" id="gaugeValue">--</div>
+                </div>
+                <div class="widget-timestamp" id="gaugeTimestamp">No data yet</div>
+            </div>
+
+            <!-- Value Display Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">Current Value</span>
+                    <span class="refresh-indicator" id="refresh-value">↻</span>
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Asset ID</label>
+                    <input type="text" id="value-asset-id" placeholder="asset-456">
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Attribute Name</label>
+                    <input type="text" id="value-attribute" placeholder="power">
+                </div>
+                <button class="secondary" onclick="startValueWidget()">Start Value Widget</button>
+                <div class="widget-value" id="currentValue">--</div>
+                <div class="widget-timestamp" id="valueTimestamp">No data yet</div>
+            </div>
+
+            <!-- Table Widget -->
+            <div class="widget" style="grid-column: span 2;">
+                <div class="widget-header">
+                    <span class="widget-title">Multi-Asset Table</span>
+                    <span class="refresh-indicator" id="refresh-table">↻</span>
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Asset IDs (comma-separated)</label>
+                    <input type="text" id="table-asset-ids" placeholder="asset-1,asset-2,asset-3">
+                </div>
+                <button class="secondary" onclick="startTableWidget()">Start Table Widget</button>
+                <div class="table-widget">
+                    <table class="data-table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Asset Name</th>
+                                <th>Status</th>
+                                <th>Value</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 30px; color: #95a5a6;">
+                                    Configure and start the widget to see data
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="header" style="margin-top: 30px;">
+            <h3>🔗 How to Use in OpenRemote</h3>
+            <p style="margin: 15px 0; line-height: 1.6;">
+                Once you host this file on your server, you can reference it in OpenRemote by:
+            </p>
+            <ol style="margin-left: 20px; line-height: 1.8;">
+                <li>Upload this HTML file to your web server</li>
+                <li>Copy the URL (e.g., https://yourserver.com/openremote-widgets.html)</li>
+                <li>In OpenRemote, you can embed it using an iframe in a custom dashboard</li>
+                <li>Or use it as a standalone monitoring page</li>
+            </ol>
+
+            <div class="code-snippet">
+                &lt;!-- Example: Embedding specific widget with URL parameters --&gt;
+                &lt;iframe
+                src="https://yourserver.com/openremote-widgets.html?widget=gauge&assetId=123&attribute=temp"&gt;&lt;/iframe&gt;
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let authToken = null;
+        let instanceUrl = null;
+        let refreshIntervals = {};
+
+        // Connect to OpenRemote
+        async function connectToOpenRemote() {
+            instanceUrl = document.getElementById('instanceUrl').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+
+            const status = document.getElementById('connectionStatus');
+
+            if (!instanceUrl) {
+                showStatus('error', 'Please enter OpenRemote instance URL');
+                return;
+            }
+
+            // Remove trailing slash
+            instanceUrl = instanceUrl.replace(/\/$/, '');
+
+            try {
+                if (token) {
+                    // Use provided token
+                    authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+                    showStatus('success', 'Connected with provided token!');
+                } else if (username && password) {
+                    // Authenticate with username/password
+                    const response = await fetch(`${instanceUrl}/auth/realms/master/protocol/openid-connect/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'grant_type': 'password',
+                            'client_id': 'openremote',
+                            'username': username,
+                            'password': password
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Authentication failed: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    authToken = `Bearer ${data.access_token}`;
+                    showStatus('success', 'Successfully authenticated with OpenRemote!');
+                } else {
+                    showStatus('error', 'Please provide either username/password OR access token');
+                    return;
+                }
+
+                // Test the connection
+                await testConnection();
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                showStatus('error', `Connection failed: ${error.message}`);
+                authToken = null;
+            }
+        }
+
+        // Test connection
+        async function testConnection() {
+            const response = await fetch(`${instanceUrl}/api/master/asset`, {
+                headers: {
+                    'Authorization': authToken
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch assets - check your credentials');
+            }
+        }
+
+        // Show status message
+        function showStatus(type, message) {
+            const status = document.getElementById('connectionStatus');
+            status.className = `status ${type}`;
+            status.textContent = message;
+            status.style.display = 'block';
+
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fetch asset attribute value
+        async function fetchAttributeValue(assetId, attributeName) {
+            if (!authToken || !instanceUrl) {
+                throw new Error('Not connected to OpenRemote');
+            }
+
+            const response = await fetch(`${instanceUrl}/api/master/asset/${assetId}`, {
+                headers: {
+                    'Authorization': authToken,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch asset: ${response.statusText}`);
+            }
+
+            const asset = await response.json();
+
+            if (!asset.attributes || !asset.attributes[attributeName]) {
+                throw new Error(`Attribute '${attributeName}' not found`);
+            }
+
+            return {
+                value: asset.attributes[attributeName].value,
+                timestamp: asset.attributes[attributeName].timestamp,
+                assetName: asset.name,
+                type: asset.attributes[attributeName].type
+            };
+        }
+
+        // Gauge Widget
+        async function updateGaugeWidget() {
+            const assetId = document.getElementById('gauge-asset-id').value.trim();
+            const attribute = document.getElementById('gauge-attribute').value.trim();
+
+            if (!assetId || !attribute) return;
+
+            try {
+                showRefreshIndicator('refresh-gauge');
+                const data = await fetchAttributeValue(assetId, attribute);
+
+                const value = parseFloat(data.value) || 0;
+                const percentage = Math.min((value / 100) * 100, 100);
+                const circumference = 2 * Math.PI * 80;
+                const offset = circumference - (percentage / 100) * circumference;
+
+                document.getElementById('gaugeFill').setAttribute('stroke-dasharray', `${circumference - offset} ${circumference}`);
+                document.getElementById('gaugeValue').textContent = value.toFixed(1);
+                document.getElementById('gaugeTimestamp').textContent = `Updated: ${new Date(data.timestamp).toLocaleString()}`;
+            } catch (error) {
+                console.error('Gauge update error:', error);
+                document.getElementById('gaugeValue').textContent = 'ERR';
+                document.getElementById('gaugeTimestamp').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function startGaugeWidget() {
+            if (refreshIntervals.gauge) {
+                clearInterval(refreshIntervals.gauge);
+            }
+            updateGaugeWidget();
+            refreshIntervals.gauge = setInterval(updateGaugeWidget, 5000);
+        }
+
+        // Value Widget
+        async function updateValueWidget() {
+            const assetId = document.getElementById('value-asset-id').value.trim();
+            const attribute = document.getElementById('value-attribute').value.trim();
+
+            if (!assetId || !attribute) return;
+
+            try {
+                showRefreshIndicator('refresh-value');
+                const data = await fetchAttributeValue(assetId, attribute);
+
+                document.getElementById('currentValue').textContent = data.value;
+                document.getElementById('valueTimestamp').textContent = `Updated: ${new Date(data.timestamp).toLocaleString()}`;
+            } catch (error) {
+                console.error('Value update error:', error);
+                document.getElementById('currentValue').textContent = 'ERROR';
+                document.getElementById('valueTimestamp').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function startValueWidget() {
+            if (refreshIntervals.value) {
+                clearInterval(refreshIntervals.value);
+            }
+            updateValueWidget();
+            refreshIntervals.value = setInterval(updateValueWidget, 5000);
+        }
+
+        // Table Widget
+        async function updateTableWidget() {
+            const assetIds = document.getElementById('table-asset-ids').value.trim().split(',').map(id => id.trim()).filter(id => id);
+
+            if (assetIds.length === 0) return;
+
+            try {
+                showRefreshIndicator('refresh-table');
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+
+                for (const assetId of assetIds) {
+                    try {
+                        const response = await fetch(`${instanceUrl}/api/master/asset/${assetId}`, {
+                            headers: {
+                                'Authorization': authToken,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) continue;
+
+                        const asset = await response.json();
+
+                        // Get first attribute value for display
+                        const firstAttr = Object.keys(asset.attributes || {})[0];
+                        const value = firstAttr ? asset.attributes[firstAttr].value : 'N/A';
+                        const timestamp = firstAttr ? asset.attributes[firstAttr].timestamp : Date.now();
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${asset.name}</td>
+                            <td><span style="color: var(--success); font-weight: 600;">●</span> Active</td>
+                            <td>${value}</td>
+                            <td>${new Date(timestamp).toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    } catch (err) {
+                        console.error(`Error fetching asset ${assetId}:`, err);
+                    }
+                }
+
+                if (tableBody.children.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No assets found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Table update error:', error);
+            }
+        }
+
+        function startTableWidget() {
+            if (refreshIntervals.table) {
+                clearInterval(refreshIntervals.table);
+            }
+            updateTableWidget();
+            refreshIntervals.table = setInterval(updateTableWidget, 5000);
+        }
+
+        // Show refresh indicator
+        function showRefreshIndicator(elementId) {
+            const indicator = document.getElementById(elementId);
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 500);
+        }
+
+        // URL Parameter handling (for iframe integration)
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get('instanceUrl')) {
+                document.getElementById('instanceUrl').value = params.get('instanceUrl');
+            }
+
+            if (params.get('token')) {
+                document.getElementById('accessToken').value = params.get('token');
+            }
+
+            // Auto-connect if parameters are provided
+            if (params.get('autoConnect') === 'true' && params.get('token')) {
+                setTimeout(() => connectToOpenRemote(), 500);
+            }
+        });
+    </script>
+</body>
+
+</html>
