@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenRemote Widget Library</title>
+    <title>OpenRemote Widget Library (CORS-Fixed)</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -38,7 +37,7 @@
             background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
 
@@ -46,6 +45,26 @@
             color: var(--primary);
             margin-bottom: 20px;
             font-size: 28px;
+        }
+
+        .cors-info {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .cors-info h3 {
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .cors-info p {
+            color: #1e3a8a;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .config-section {
@@ -142,13 +161,13 @@
             background: white;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
 
         .widget:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .widget-header {
@@ -221,12 +240,6 @@
             color: var(--primary);
         }
 
-        .chart-container {
-            width: 100%;
-            height: 250px;
-            margin: 20px 0;
-        }
-
         .table-widget {
             overflow-x: auto;
         }
@@ -253,22 +266,6 @@
             background: #f8f9fa;
         }
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-radius: 50%;
-            border-top-color: var(--secondary);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
         .refresh-indicator {
             color: var(--success);
             font-size: 12px;
@@ -279,78 +276,37 @@
         .refresh-indicator.active {
             opacity: 1;
         }
-
-        .instructions {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-
-        .instructions h3 {
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .instructions ul {
-            margin-left: 20px;
-            line-height: 1.6;
-        }
-
-        .code-snippet {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            overflow-x: auto;
-        }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎛️ OpenRemote Widget Library</h1>
-
-            <div class="instructions">
-                <h3>📋 Setup Instructions:</h3>
-                <ul>
-                    <li>Enter your OpenRemote instance URL (e.g., https://your-instance.com)</li>
-                    <li>Provide authentication credentials (username + password OR access token)</li>
-                    <li>Click "Connect to OpenRemote" to authenticate</li>
-                    <li>Configure asset IDs and attribute names for each widget</li>
-                    <li>Widgets will automatically refresh every 5 seconds</li>
-                </ul>
+            <h1>🎛️ OpenRemote Widget Library (CORS-Fixed)</h1>
+            
+            <div class="cors-info">
+                <h3>✅ CORS Issue Resolved!</h3>
+                <p>This version uses a backend proxy to bypass CORS restrictions. All API calls are now routed through your Vercel serverless function.</p>
             </div>
 
             <div class="config-section">
                 <div class="input-group">
                     <label for="instanceUrl">OpenRemote Instance URL</label>
-                    <input type="text" id="instanceUrl" placeholder="https://your-instance.openremote.io" value="">
+                    <input type="text" id="instanceUrl" placeholder="https://gv.saarthigreentech.com" value="">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="input-group">
-                        <label for="username">Username (Optional)</label>
+                        <label for="username">Username</label>
                         <input type="text" id="username" placeholder="admin">
                     </div>
                     <div class="input-group">
-                        <label for="password">Password (Optional)</label>
+                        <label for="password">Password</label>
                         <input type="password" id="password" placeholder="password">
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label for="accessToken">OR Access Token</label>
-                    <input type="password" id="accessToken" placeholder="Bearer token (if you have one)">
-                </div>
-
-                <button onclick="connectToOpenRemote()">🔌 Connect to OpenRemote</button>
-
+                <button onclick="connectToOpenRemote()">🔌 Connect to OpenRemote (via Proxy)</button>
+                
                 <div id="connectionStatus" class="status"></div>
             </div>
         </div>
@@ -374,8 +330,8 @@
                 <div class="gauge-container" id="gaugeContainer">
                     <svg class="gauge-svg" width="200" height="200" viewBox="0 0 200 200">
                         <circle class="gauge-bg" cx="100" cy="100" r="80"></circle>
-                        <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="80" stroke-dasharray="0 502">
-                        </circle>
+                        <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="80"
+                                stroke-dasharray="0 502"></circle>
                     </svg>
                     <div class="gauge-value" id="gaugeValue">--</div>
                 </div>
@@ -433,25 +389,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="header" style="margin-top: 30px;">
-            <h3>🔗 How to Use in OpenRemote</h3>
-            <p style="margin: 15px 0; line-height: 1.6;">
-                Once you host this file on your server, you can reference it in OpenRemote by:
-            </p>
-            <ol style="margin-left: 20px; line-height: 1.8;">
-                <li>Upload this HTML file to your web server</li>
-                <li>Copy the URL (e.g., https://yourserver.com/openremote-widgets.html)</li>
-                <li>In OpenRemote, you can embed it using an iframe in a custom dashboard</li>
-                <li>Or use it as a standalone monitoring page</li>
-            </ol>
-
-            <div class="code-snippet">
-                &lt;!-- Example: Embedding specific widget with URL parameters --&gt;
-                &lt;iframe
-                src="https://yourserver.com/openremote-widgets.html?widget=gauge&assetId=123&attribute=temp"&gt;&lt;/iframe&gt;
-            </div>
-        </div>
     </div>
 
     <script>
@@ -460,12 +397,37 @@
         let instanceUrl = null;
         let refreshIntervals = {};
 
+        // Proxy URL - uses Vercel serverless function
+        const PROXY_URL = '/api/proxy';
+
+        // Make proxied request
+        async function proxyFetch(endpoint, options = {}) {
+            const response = await fetch(PROXY_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    endpoint: endpoint,
+                    method: options.method || 'GET',
+                    headers: options.headers || {},
+                    body: options.body || null
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Proxy request failed');
+            }
+
+            return response;
+        }
+
         // Connect to OpenRemote
         async function connectToOpenRemote() {
             instanceUrl = document.getElementById('instanceUrl').value.trim();
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
-            const token = document.getElementById('accessToken').value.trim();
 
             const status = document.getElementById('connectionStatus');
 
@@ -477,41 +439,39 @@
             // Remove trailing slash
             instanceUrl = instanceUrl.replace(/\/$/, '');
 
+            if (!username || !password) {
+                showStatus('error', 'Please provide username and password');
+                return;
+            }
+
             try {
-                if (token) {
-                    // Use provided token
-                    authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-                    showStatus('success', 'Connected with provided token!');
-                } else if (username && password) {
-                    // Authenticate with username/password
-                    const response = await fetch(`${instanceUrl}/auth/realms/master/protocol/openid-connect/token`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            'grant_type': 'password',
-                            'client_id': 'openremote',
-                            'username': username,
-                            'password': password
-                        })
-                    });
+                showStatus('success', 'Connecting via proxy...');
 
-                    if (!response.ok) {
-                        throw new Error(`Authentication failed: ${response.statusText}`);
-                    }
+                // Authenticate through proxy
+                const authEndpoint = `${instanceUrl}/auth/realms/master/protocol/openid-connect/token`;
+                
+                const formBody = new URLSearchParams({
+                    'grant_type': 'password',
+                    'client_id': 'openremote',
+                    'username': username,
+                    'password': password
+                }).toString();
 
-                    const data = await response.json();
-                    authToken = `Bearer ${data.access_token}`;
-                    showStatus('success', 'Successfully authenticated with OpenRemote!');
-                } else {
-                    showStatus('error', 'Please provide either username/password OR access token');
-                    return;
-                }
+                const response = await proxyFetch(authEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formBody
+                });
+
+                const data = await response.json();
+                authToken = `Bearer ${data.access_token}`;
+                showStatus('success', 'Successfully authenticated via proxy!');
 
                 // Test the connection
                 await testConnection();
-
+                
             } catch (error) {
                 console.error('Connection error:', error);
                 showStatus('error', `Connection failed: ${error.message}`);
@@ -521,7 +481,7 @@
 
         // Test connection
         async function testConnection() {
-            const response = await fetch(`${instanceUrl}/api/master/asset`, {
+            const response = await proxyFetch(`${instanceUrl}/api/master/asset`, {
                 headers: {
                     'Authorization': authToken
                 }
@@ -550,7 +510,7 @@
                 throw new Error('Not connected to OpenRemote');
             }
 
-            const response = await fetch(`${instanceUrl}/api/master/asset/${assetId}`, {
+            const response = await proxyFetch(`${instanceUrl}/api/master/asset/${assetId}`, {
                 headers: {
                     'Authorization': authToken,
                     'Accept': 'application/json'
@@ -562,7 +522,7 @@
             }
 
             const asset = await response.json();
-
+            
             if (!asset.attributes || !asset.attributes[attributeName]) {
                 throw new Error(`Attribute '${attributeName}' not found`);
             }
@@ -585,7 +545,7 @@
             try {
                 showRefreshIndicator('refresh-gauge');
                 const data = await fetchAttributeValue(assetId, attribute);
-
+                
                 const value = parseFloat(data.value) || 0;
                 const percentage = Math.min((value / 100) * 100, 100);
                 const circumference = 2 * Math.PI * 80;
@@ -619,7 +579,7 @@
             try {
                 showRefreshIndicator('refresh-value');
                 const data = await fetchAttributeValue(assetId, attribute);
-
+                
                 document.getElementById('currentValue').textContent = data.value;
                 document.getElementById('valueTimestamp').textContent = `Updated: ${new Date(data.timestamp).toLocaleString()}`;
             } catch (error) {
@@ -650,7 +610,7 @@
 
                 for (const assetId of assetIds) {
                     try {
-                        const response = await fetch(`${instanceUrl}/api/master/asset/${assetId}`, {
+                        const response = await proxyFetch(`${instanceUrl}/api/master/asset/${assetId}`, {
                             headers: {
                                 'Authorization': authToken,
                                 'Accept': 'application/json'
@@ -660,7 +620,7 @@
                         if (!response.ok) continue;
 
                         const asset = await response.json();
-
+                        
                         // Get first attribute value for display
                         const firstAttr = Object.keys(asset.attributes || {})[0];
                         const value = firstAttr ? asset.attributes[firstAttr].value : 'N/A';
@@ -704,24 +664,21 @@
             }, 500);
         }
 
-        // URL Parameter handling (for iframe integration)
+        // URL Parameter handling
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-
+            
             if (params.get('instanceUrl')) {
                 document.getElementById('instanceUrl').value = params.get('instanceUrl');
             }
-
-            if (params.get('token')) {
-                document.getElementById('accessToken').value = params.get('token');
-            }
-
+            
             // Auto-connect if parameters are provided
-            if (params.get('autoConnect') === 'true' && params.get('token')) {
+            if (params.get('autoConnect') === 'true' && params.get('username') && params.get('password')) {
+                document.getElementById('username').value = params.get('username');
+                document.getElementById('password').value = params.get('password');
                 setTimeout(() => connectToOpenRemote(), 500);
             }
         });
     </script>
 </body>
-
 </html>
