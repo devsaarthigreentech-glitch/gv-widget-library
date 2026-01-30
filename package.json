@@ -1,0 +1,12 @@
+{
+  "name": "openremote-widget-library",
+  "version": "1.0.0",
+  "description": "Standalone widget library for OpenRemote",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": ["openremote", "widgets", "iot"],
+  "license": "MIT"
+}
